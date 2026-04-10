@@ -1,8 +1,14 @@
 import { useState } from "react";
 import PostCard from "./PostCard";
+import axios from "axios";
+import { useEffect } from "react";
 
 const Feed = () => {
   const [posts, setPosts] = useState([]);
+  useEffect(()=>{
+    axios.get("http://localhost:3000/posts",[])
+    .then(res => setPosts(res.data.posts))
+  },[])
 
   return (
     <section className="min-h-screen bg-gray-50 py-6 md:py-12">

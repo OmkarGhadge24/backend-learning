@@ -1,11 +1,16 @@
 import { useState } from 'react';
+import axios from "axios"
+import { useNavigate } from "react-router-dom"
 
 const CreatePost = () => {
   const [preview, setPreview] = useState(null);
+  const [imageFile, setImageFile] = useState(null);
+  const navigate = useNavigate()
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
+      setImageFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
         setPreview(reader.result);
@@ -14,11 +19,21 @@ const CreatePost = () => {
     }
   };
 
-  const handleReset = (e) => {
-    if (e.type === 'reset') {
-      setPreview(null);
+  const handlesubmit = async (e) => {
+    e.preventDefault()
+    const formData = new FormData(e.target)
+    if (imageFile) {
+        formData.set("image", imageFile)
     }
-  };
+    axios.post("http://localhost:3000/create-post", formData)
+      .then((res) => {
+        e.target.reset()
+        navigate("/feed")
+      })
+      .catch((err) => {
+        console.log(err);
+      })
+  }
 
   return (
     <section className="min-h-screen bg-white py-6 md:py-12">
@@ -29,7 +44,7 @@ const CreatePost = () => {
         </div>
 
         {/* Form */}
-        <form className="space-y-5" onReset={handleReset}>
+        <form onSubmit={handlesubmit} className="space-y-6">
           <div>
             {preview ? (
               <div className="relative bg-gray-100 rounded-lg overflow-hidden">
@@ -46,7 +61,6 @@ const CreatePost = () => {
                     accept="image/*"
                     onChange={handleImageChange}
                     className="hidden"
-                    required
                   />
                 </label>
               </div>
@@ -65,7 +79,6 @@ const CreatePost = () => {
                   accept="image/*"
                   onChange={handleImageChange}
                   className="hidden"
-                  required
                 />
               </label>
             )}
@@ -82,20 +95,13 @@ const CreatePost = () => {
               required
             />
           </div>
-          <div className="flex gap-3 pt-3">
-            <button
-              type="submit"
-              className="flex-1 bg-gray-900 hover:bg-gray-800 text-white font-medium py-3 rounded-lg transition-colors duration-200 text-sm sm:text-base"
-            >
-              Post
-            </button>
-            <button
-              type="reset"
-              className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-900 font-medium py-3 rounded-lg transition-colors duration-200 text-sm sm:text-base"
-            >
-              Clear
-            </button>
-          </div>
+          <button
+            type="submit"
+            className="flex-1 pt-3 w-full cursor-pointer bg-gray-900 hover:bg-gray-950 text-white font-medium py-3 rounded-lg transition-colors duration-200 text-sm sm:text-base"
+          >
+            Post
+          </button>
+
         </form>
       </div>
     </section>
